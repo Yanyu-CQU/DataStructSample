@@ -29,6 +29,7 @@ public:
 	Node<T>*   rGetKthNode(int k);
 	void reverse(); 
 	void selectSort();
+	void bubbleSort();
 	void mergeSortedList(SingleList<T>& listMerge);
 	bool isCircle();
 	Node<T>* getCircleNode();
@@ -151,7 +152,7 @@ Node<T>* SingleList<T>:: getPos(int pos)
 }
 
 template <typename T>
-Node<T>* SingleList<T>::rGetKthNode(int k)//²»ÖªµÀÁ´±ísizeµÄÐ´·¨¡£¡£¡£¡£¡£ 
+Node<T>* SingleList<T>::rGetKthNode(int k)//不知道链表size的写法。。。。。 
 {
 	//if (k >= size) return nullptr;
 	Node<T>* fir = head;
@@ -206,7 +207,7 @@ void SingleList<T>::rPrint(Node<T>* pNode)
 
 template <typename T>
 void SingleList<T>::selectSort()
-{
+{ 
 	if (head == nullptr) return;
 	Node<T>* cur = head;
 	Node<T>* cmp = nullptr;
@@ -234,16 +235,16 @@ void SingleList<T>::mergeSortedList(SingleList<T>& listMerge)
 	if (head == nullptr || listMerge.getHead() == nullptr) return;
 	Node<T>* cur = head;
 	Node<T>* cmp = listMerge.getHead();
-	int pos = 0;//curµÄÎ»ÖÃ 
+	int pos = 0;//cur的位置 
 	while (cur != nullptr && cmp != nullptr)
 	{
 		if (cur->val > cmp->val)
 		{
-			insert(pos,cmp->val);//²åÈëcurÇ°Ãæ 
+			insert(pos,cmp->val);//插入cur前面 
 			pos++;
 			cmp = cmp->next;
 		}
-		else if (cur->val <= cmp->val && cur->next != nullptr && cur->next->val >= cmp->val)//²åÈëcurºóÃæ 
+		else if (cur->val <= cmp->val && cur->next != nullptr && cur->next->val >= cmp->val)//插入cur后面 
 		{
 			insert(pos + 1, cmp->val);
 			cmp = cmp->next;
@@ -340,6 +341,26 @@ void SingleList<T>::deleteNode(Node<T>* pNode)
 	return;
 }
 
+
+template <typename T>
+void SingleList<T>::bubbleSort()
+{
+	for (Node<T>* q = head; q->next != nullptr; q = q->next)
+	{
+		Node<T>* p = head;
+		while (p->next != nullptr)
+		{
+			if (p->val > p->next->val)
+			{
+				T temp = p->val;
+				p->val = p->next->val;
+				p->next->val = temp;
+			}
+			p = p->next;
+		}
+	}
+}
+
 int main()
 {
 	SingleList<int> list;
@@ -393,8 +414,12 @@ int main()
 	std::cout << "reverse print:" << std::endl;
 	list.rPrint(list.getHead());
 	
-	list.selectSort();
+	/*list.selectSort();
 	std::cout << "select sort:" << std::endl;
+	list.print();*/
+	
+	list.bubbleSort();
+	std::cout << "bubble sort:" << std::endl;
 	list.print();
 	
 	SingleList<int> listMerge;
@@ -411,9 +436,9 @@ int main()
 	std::cout << "after merge:" << std::endl;
 	list.print();
 	
-	list.getPos(list.getSize() - 1)->next = list.getHead();//Ç¿ÐÐÖÆÔìÒ»¸ö»· 
+	list.getPos(list.getSize() - 1)->next = list.getHead();//强行制造一个环 
 	std::cout << "is have circle:" << list.isCircle() << std::endl;
-	//list.print();//ÎÞÏÞÑ­»·´òÓ¡ 
+	//list.print();//无限循环打印 
 	
 	Node<int>* end = list.getCircleNode();
 	end->next = nullptr;
@@ -423,7 +448,7 @@ int main()
 	/*listMerge.clear();
 	listMerge.setHead(list.getHead());
 	std::cout << "make listMerge same as list:" << std::endl;
-	listMerge.print();*///Ç¿ÐÐÖÆÔìÏàÍ¬½Úµã 
+	listMerge.print();*///强行制造相同节点 
 	
 	std::cout << "is have same node:" << list.isHaveInts(listMerge) << std::endl;
 	
@@ -437,3 +462,10 @@ int main()
 
 	return 1;
 }
+
+
+
+
+
+
+
