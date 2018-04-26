@@ -1,228 +1,439 @@
 #include <iostream>
+#include <set>
+
+template <typename T>
+struct Node 
+{
+	Node* next;
+	T val;
+	Node(const T& v = T(),Node* n = nullptr) : val(v), next(n) {};
+};
 
 template <typename T>
 class SingleList
 {
-private:
-	struct Node
-	{
-		T val;
-		Node* next;
-		Node(const T& v = T(), Node* n = nullptr) : val(v), next(n) {}
-	};
-	int size;
-	Node* head;
-	Node* tail;
+
 public:
+
 	SingleList();
 	~SingleList();
-	int Size();
+	int  getSize();
+	Node<T>* getHead();
 	bool isEmpty();
 	void insert(int pos, const T& v);
 	void erase(int pos);
 	void clear();
-	void pushHead(const T& v);
-	void popHead();
-	void pushTail(const T& v);
-	void popTail();
 	void print();
-	T&   rGetKthNode(unsigned int k);
+	void rPrint(Node<T>* pNode);
+	Node<T>*   getPos(int pos);
+	Node<T>*   rGetKthNode(int k);
+	void reverse(); 
+	void selectSort();
+	void mergeSortedList(SingleList<T>& listMerge);
+	bool isCircle();
+	Node<T>* getCircleNode();
+	bool isHaveInts(SingleList<T>& cmp);
+	Node<T>* setHead(Node<T>* h){
+		if(h != nullptr)
+			head = h;
+	};
+	void deleteNode(Node<T>* pNode);
+private:
+	Node<T>* head;
+	int size;
 };
 
 template <typename T>
-SingleList<T>::SingleList()
+SingleList<T>::SingleList() : head(nullptr), size(0)
 {
-	size = 0;
-	head = new Node();
-	tail = new Node();
-	head->next = tail;
 }
 
 template <typename T>
 SingleList<T>::~SingleList()
 {
 	clear();
-	delete head;
-	delete tail;
 }
 
 template <typename T>
-int SingleList<T>::Size()
+int SingleList<T>::getSize()
 {
-	return this->size;
+	return size;
 }
 
 template <typename T>
 bool SingleList<T>::isEmpty()
 {
-	return size == 0;
+	return (size == 0);
 }
 
 template <typename T>
 void SingleList<T>::insert(int pos, const T& v)
 {
-	if (pos < 0 || pos > this->size) return;//非法位置
-	
-	Node* tempNode = this->head;
-	for (int  i = 0; i < pos; ++i)
-		tempNode = tempNode->next;
-	Node* newNode = new Node(v);
-	newNode->next = tempNode->next;
-	tempNode->next = newNode;
-	size++;
+	if (pos < 0 || pos > size) return;
+	if (head == nullptr) {
+		head = new Node<T>(v);
+		head->next = nullptr;
+	} else if(pos == 0) {
+		Node<T>* newNode = new Node<T>(v);
+		newNode->next = head;
+		head = newNode;
+	} else {
+		Node<T>* newNode = new Node<T>(v);
+		Node<T>* tempNode = head;
+		for (int i = 0; i < pos - 1; ++i) {
+			tempNode = tempNode->next;
+		}
+		newNode->next = tempNode->next;
+		tempNode->next = newNode;
+	}
+	++size;
+	return;
 }
 
 template <typename T>
 void SingleList<T>::erase(int pos)
 {
-	if (pos < 0 || pos >= this->size) return;//非法位置，以及尾不允许 
-	
-	Node* tempNode = this->head;
-	for (int  i = 0; i < pos; ++i)
-		tempNode = tempNode->next;
-	
-	Node* delNode = tempNode->next;
-	tempNode->next = delNode->next;
-	delete delNode;
-	size--;
+	if (pos < 0 || pos >= size) return;
+	if (pos == 0) {
+		Node<T>* delNode = head;
+		head = head->next;
+		delete delNode;
+	} else {
+		Node<T>* tempNode = head;
+		Node<T>* delNode = nullptr;
+		for (int i = 0; i < pos - 1; ++i) {
+			tempNode = tempNode->next;
+		}
+		delNode = tempNode->next;
+		tempNode->next = delNode->next;
+		delete delNode;
+	}
+
+	--size;
 }
 
 template <typename T>
 void SingleList<T>::clear()
 {
-	/*Node* delNode = this->head->next;
-	Node* tempNode = nullptr;
-	while (delNode != this->tail)
-	{
-		tempNode = delNode;
-		delNode = delNode->next;
-		delete tempNode;
-	}
-	this->head->next = this->tail;
-	size = 0;*/
-	int count = this->size;
-	for (int i = 0; i < count; ++i)
-		this->popHead();
-	
-}
-
-template <typename T>
-void SingleList<T>::pushHead(const T& v)
-{
-	this->insert(0, v);
-}
-
-template <typename T>
-void SingleList<T>::popHead()
-{
-	this->erase(0);
-}
-
-template <typename T>
-void SingleList<T>::pushTail(const T& v)
-{
-	/*Node* tempNode = this->head;
-	while (tempNode->next != this->tail)
-	{
+	Node<T>* tempNode = head;
+	Node<T>* delNode = nullptr;
+	while (tempNode != nullptr) {
+		delNode = tempNode;
 		tempNode = tempNode->next;
+		delete delNode;
 	}
-	Node* newNode = new Node(v);
-	newNode->next = this->tail;
-	tempNode->next = newNode;
-	size++;*/
-	this->insert(this->size - 1, v);
-}
-
-template <typename T>
-void SingleList<T>::popTail()
-{
-	this->erase(this->size - 1);
+	size = 0;
+	head = nullptr;
+	return;
 }
 
 template <typename T>
 void SingleList<T>::print()
 {
-	Node* temp = this->head->next;
-	while (temp != this->tail)
+	Node<T>* printNode = head;
+	while (printNode != nullptr) {
+		std::cout << printNode->val << "\t";
+		printNode = printNode->next;
+	}
+	std::cout << "\n";
+	return;
+}
+
+template <typename T>
+Node<T>* SingleList<T>:: getPos(int pos)
+{
+	if (pos < 0 || pos >= size) return nullptr;
+	Node<T>* node = head;
+	for (int i = 0; i < pos; ++i) {
+		node = node->next;
+	}
+	return node;
+}
+
+template <typename T>
+Node<T>* SingleList<T>::rGetKthNode(int k)//虏禄脰陋碌脌脕麓卤铆size碌脛脨麓路篓隆拢隆拢隆拢隆拢隆拢 
+{
+	//if (k >= size) return nullptr;
+	Node<T>* fir = head;
+	Node<T>* sec = head; 
+	while (k != 0 && fir != nullptr)
 	{
-		std::cout << temp->val << "\t";
+		fir = fir->next;
+		--k;
+	}
+	if (k > 0 || fir == nullptr) return nullptr;
+	while(fir->next != nullptr)
+	{
+		fir = fir->next;
+		sec = sec->next;
+	}
+	return sec;
+}
+
+template <typename T>
+void SingleList<T>::reverse()
+{
+	if (head == nullptr) return;
+	Node<T>* pre = head;
+	Node<T>* cur = head->next;
+	Node<T>* tempNext = nullptr;
+	while (cur != nullptr)
+	{
+		tempNext = cur->next;
+		cur->next = pre;
+		pre = cur;
+		cur = tempNext;
+	}
+	head->next = nullptr;
+	head = pre;
+	return;
+}
+
+template <typename T>
+Node<T>* SingleList<T>::getHead()
+{
+	return this->head;
+}
+
+template <typename T>
+void SingleList<T>::rPrint(Node<T>* pNode)
+{
+	if (pNode == nullptr) return;
+	else rPrint(pNode->next);
+	std::cout << pNode->val << "\t";
+	if (pNode == head) std::cout << "\n";
+}
+
+template <typename T>
+void SingleList<T>::selectSort()
+{
+	if (head == nullptr) return;
+	Node<T>* cur = head;
+	Node<T>* cmp = nullptr;
+	while (cur != nullptr)
+	{
+		cmp = cur->next;
+		while (cmp != nullptr)
+		{
+			if (cmp->val < cur->val)
+			{
+				T t = cur->val;
+				cur->val = cmp->val;
+				cmp->val = t;
+			}
+			cmp = cmp->next;
+		}
+		cur = cur->next;
+	}
+	return;
+}
+
+template <typename T>
+void SingleList<T>::mergeSortedList(SingleList<T>& listMerge)
+{
+	if (head == nullptr || listMerge.getHead() == nullptr) return;
+	Node<T>* cur = head;
+	Node<T>* cmp = listMerge.getHead();
+	int pos = 0;//cur碌脛脦禄脰脙 
+	while (cur != nullptr && cmp != nullptr)
+	{
+		if (cur->val > cmp->val)
+		{
+			insert(pos,cmp->val);//虏氓脠毛cur脟掳脙忙 
+			pos++;
+			cmp = cmp->next;
+		}
+		else if (cur->val <= cmp->val && cur->next != nullptr && cur->next->val >= cmp->val)//虏氓脠毛cur潞贸脙忙 
+		{
+			insert(pos + 1, cmp->val);
+			cmp = cmp->next;
+		}
+		else
+		{
+			cur = cur->next;
+		} 
+	}
+	while (cmp != nullptr)
+	{
+		insert(size,cmp->val);
+		cmp = cmp->next;
+	}
+	return;
+}
+
+template <typename T>
+bool SingleList<T>::isCircle()
+{
+	Node<T>* fir = head;
+	Node<T>* sec = head;
+	while (fir != nullptr && fir->next != nullptr)
+	{
+		fir = fir->next->next;
+		sec = sec->next;
+		if (fir == sec) return true;
+	}
+	return false;
+}
+
+template <typename T>
+Node<T>* SingleList<T>::getCircleNode()
+{
+	if (head == nullptr) return nullptr;
+	std::set<Node<T>*> count;
+	count.insert(head);
+	Node<T>* temp = head->next;
+	Node<T>* pre = head;
+	while (temp != nullptr)
+	{
+		if (count.insert(temp).second == 0) return pre;
+		pre = temp;
 		temp = temp->next;
 	}
-	std::cout << std::endl;
+	return nullptr;
 }
 
-// 查找单链表中倒数第K个结点
 template <typename T>
-T& SingleList<T>::rGetKthNode(unsigned int k) // 函数名前面的R代表反向
+bool SingleList<T>::isHaveInts(SingleList<T>& cmp)
 {
-	
-	if(k == 0 ) // 这里k的计数是从1开始的，若k为0或链表为空返回NULL
-		return head->val;
-
-	Node * pAhead = head;
-	Node * pBehind = head;
-	while(k > 1 && pAhead != NULL) // 前面的指针先走到正向第k个结点
+	if (head == nullptr || cmp.getHead() == nullptr) 
+		return false;
+	Node<T>* end1 = head;
+	Node<T>* end2 = cmp.getHead();
+	while (end1->next != nullptr)
 	{
-		pAhead = pAhead->next;
-		k--;
+		end1 = end1->next;
 	}
-	if(k > 1 || pAhead == NULL)     // 结点个数小于k，返回NULL
-		return head->val;
-	while(pAhead->next != NULL)  // 前后两个指针一起向前走，直到前面的指针指向最后一个结点
+	while (end2->next != nullptr)
 	{
-		pBehind = pBehind->next;
-		pAhead = pAhead->next;
+		end2 = end2->next;
 	}
-	
-	
-	return pBehind->val;  // 后面的指针所指结点就是倒数第k个结点
+	return (end1 == end2);
 }
 
-
+template <typename T>
+void SingleList<T>::deleteNode(Node<T>* pNode)
+{
+	if(head == nullptr) return;
+	else if (head == pNode) erase(0);
+	else
+	{
+		if (pNode->next != nullptr)
+		{
+			Node<T>* pNext = pNode->next;
+			pNode->val = pNext->val;
+			pNode->next = pNext->next;
+			delete pNext;
+			--size;
+		}
+		else
+		{
+			Node<T>* temp = head;
+			while (temp->next->next != nullptr)
+			{
+				temp = temp->next;
+			}
+			temp->next = nullptr;
+			delete pNode;
+			--size;
+		}
+	}
+	return;
+}
 
 int main()
 {
 	SingleList<int> list;
-	list.pushHead(10);
-	std::cout << "push head 10:" << std::endl;
+	list.insert(0,1);
+	std::cout << "insert 1:" << std::endl;
 	list.print();
-	
-	list.pushHead(20);
-	std::cout << "push head 20:" << std::endl;
+
+	list.insert(1,2);
+	std::cout << "insert 2:" << std::endl;
 	list.print();
-	
-	list.popHead();
-	std::cout << "pop head:" << std::endl;
+
+	list.insert(2,3);
+	std::cout << "insert 3:" << std::endl;
 	list.print();
-	
-	list.pushTail(30);
-	std::cout << "push tail 30:" << std::endl;
-	list.print();
-	
-	list.insert(0,40);
-	std::cout << "insert 40 at 0:" << std::endl;
-	list.print();
-	
-	list.insert(2,50);
-	std::cout << "insert 50 at 2:" << std::endl;
-	list.print();
-	
-	std::cout << "3th from tail: ";
-	std::cout << list.rGetKthNode(3) << std::endl;
-	
-	list.popTail();
-	std::cout << "pop tail:" << std::endl;
-	list.print();
-	
+
 	list.erase(1);
-	std::cout << "erase pop 1:" << std::endl;
+	std::cout << "erase pos 1:" << std::endl;
+	list.print();
+
+	list.insert(1,4);
+	std::cout << "insert 4:" << std::endl;
+	list.print();
+
+	list.erase(0);
+	std::cout << "erase pos 0:" << std::endl;
+	list.print();
+
+	list.erase(list.getSize() - 1);
+	std::cout << "erase pos tail:" << std::endl;
+	list.print();
+
+	list.insert(0,5);
+	std::cout << "insert 5:" << std::endl;
+	list.print();
+	
+	list.insert(0,6);
+	std::cout << "insert 6:" << std::endl;
+	list.print();
+
+	std::cout << "get pos 0: " << list.getPos(0)->val << std::endl;
+	std::cout << "get pos 1: " << list.getPos(1)->val << std::endl;
+	std::cout << "get pos tail: " << list.getPos(list.getSize() - 1)->val << std::endl;
+	
+	std::cout << "get rpos 1: " << list.rGetKthNode(1)->val << std::endl; 
+	
+	
+	list.reverse();
+	std::cout << "reverse:" << std::endl;
+	list.print();
+	
+	std::cout << "reverse print:" << std::endl;
+	list.rPrint(list.getHead());
+	
+	list.selectSort();
+	std::cout << "select sort:" << std::endl;
+	list.print();
+	
+	SingleList<int> listMerge;
+	listMerge.insert(0,5);
+	listMerge.insert(0,7);
+	listMerge.insert(0,1);
+	listMerge.insert(0,8);
+	listMerge.insert(0,7);
+	listMerge.selectSort();
+	std::cout << "listMerge after select sort:" << std::endl;
+	listMerge.print();
+	
+	list.mergeSortedList(listMerge);
+	std::cout << "after merge:" << std::endl;
+	list.print();
+	
+	list.getPos(list.getSize() - 1)->next = list.getHead();//脟驴脨脨脰脝脭矛脪禄赂枚禄路 
+	std::cout << "is have circle:" << list.isCircle() << std::endl;
+	//list.print();//脦脼脧脼脩颅禄路麓貌脫隆 
+	
+	Node<int>* end = list.getCircleNode();
+	end->next = nullptr;
+	std::cout << "solute the cirle:" << std::endl;
+	list.print();
+	
+	/*listMerge.clear();
+	listMerge.setHead(list.getHead());
+	std::cout << "make listMerge same as list:" << std::endl;
+	listMerge.print();*///脟驴脨脨脰脝脭矛脧脿脥卢陆脷碌茫 
+	
+	std::cout << "is have same node:" << list.isHaveInts(listMerge) << std::endl;
+	
+	list.deleteNode(list.getHead()->next);
+	std::cout << "delete pos 1 with O(1) time:" << std::endl;
 	list.print();
 	
 	list.clear();
 	std::cout << "clear:" << std::endl;
 	list.print();
-	
-	
-	
-	return 0;
+
+	return 1;
 }
