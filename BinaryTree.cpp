@@ -8,14 +8,14 @@ struct BinNode
     BinNode* right;
     BinNode(int v = 0, BinNode* l = nullptr, BinNode* r = nullptr) : val(v), left(l), right(r) {}
 };
-//��������ڵ���� 
+//求二叉树节点个数 
 int getNodeNum(BinNode* node)
 {
 	if (node == nullptr) return 0;
 	return getNodeNum(node->left) + getNodeNum(node->right) + 1;
 }
 
-//��������߶�
+//求二叉树高度
 int getHeight(BinNode* node)
 {
 	if (node == nullptr) return 0;
@@ -25,9 +25,9 @@ int getHeight(BinNode* node)
 	return max(lH,rH) + 1;
 } 
 
-//ǰ�����
-//��ͷ��ʼ��һ�ߴ�ӡһ�������ߵ���
-//��·���ߣ�����һ���ҷ�֧��һ·�����ߵ��� 
+//前序遍历
+//从头开始，一边打印一边向左走到底
+//无路可走，向上一层找分支，一路向左走到底 
 void preVisit(BinNode* node)
 {
 	if (node == nullptr) return;
@@ -36,9 +36,9 @@ void preVisit(BinNode* node)
 	preVisit(node->right);
 }
 
-//�������
-//˳�Ÿ�һ·�����ߵ��ף�Ȼ���ӡ
-//��·���ߣ�����һ�㣬�Ȳ���ӡ��������з�֧��һ·�ߵ����ٴ�ӡ 
+//后序遍历
+//顺着根一路向下走到底，然后打印
+//无路可走，向上一层，先不打印，如果还有分支，一路走到底再打印 
 void postVisit(BinNode* node)
 {
 	if (node == nullptr) return;
@@ -47,8 +47,8 @@ void postVisit(BinNode* node)
 	std::cout << node->val << std::endl;
 }
 
-//�������
-//�������ұ��� 
+//中序遍历
+//从左向右遍历 
 void midVisit(BinNode* node)
 {
 	if (node == nullptr) return;
@@ -57,7 +57,7 @@ void midVisit(BinNode* node)
 	midVisit(node->right);
 }
 
-//�ֲ��ӡ
+//分层打印
 void levelPrint(BinNode* root)
 {
 	if (root == nullptr) return;
@@ -77,7 +77,7 @@ void levelPrint(BinNode* root)
 	std::cout << "\n";
 }
 
-//�ֲ��ӡ���һ��� 
+//分层打印并且换行 
 void levelPrintln(BinNode* root)
 {
 	if (root == nullptr) return;
@@ -101,7 +101,7 @@ void levelPrintln(BinNode* root)
 	}
 }
 
-//���K��ڵ���,������1��ʼ 
+//求第K层节点数,层数从1开始 
 int getKthNodeNum(BinNode* node, int k)
 {
 	if (node == nullptr) return 0;
