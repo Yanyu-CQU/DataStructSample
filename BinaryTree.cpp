@@ -99,7 +99,14 @@ void levelPrintln(BinNode* root)
 		qu.swap(next);
 		std::cout << "\n";
 	}
-	
+}
+
+//求第K层节点数,层数从1开始 
+int getKthNodeNum(BinNode* node, int k)
+{
+	if (node == nullptr) return 0;
+	if (k == 1) return 1;
+	return getKthNodeNum(node->left,k - 1) + getKthNodeNum(node->right, k - 1);
 } 
 
 int main()
@@ -132,4 +139,7 @@ int main()
 	
 	std::cout << "level print by lines: " << std::endl;
 	levelPrintln(root);
+	
+	std::cout << "get node num at 3rd level: " << std::endl;
+	std::cout << getKthNodeNum(root,3) << std::endl;
 }
