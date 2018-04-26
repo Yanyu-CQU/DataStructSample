@@ -130,6 +130,6 @@ int main()
 	std::cout << "level print: " << std::endl;
 	levelPrint(root);
 	
-	std::cout << "level print by line: " << std::endl;
+	std::cout << "level print by lines: " << std::endl;
 	levelPrintln(root);
 }
