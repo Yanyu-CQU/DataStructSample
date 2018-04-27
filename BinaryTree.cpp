@@ -249,6 +249,52 @@ BinNode* getLastCommonParent(BinNode* root, BinNode* node1, BinNode* node2)
 		else return getLastCommonParent(root->right, node1, node2);
 	}
 }
+//找两个节点，使得节点之间距离最远
+//对一个节点，取得最大距离有三种情况：
+//1、在左子树中；2、在右子树中；3、以其为根节点的左右子树（左子树高度+右子树高度）
+//先序遍历的顺序，必定找到一个节点，使得以其为根节点时候，左子树高度+右子树高度是最长距离
+int getMaxDist(BinNode* node)
+{
+	if (node == nullptr) return 0;
+	else if (node->left == nullptr && node->right == nullptr) return 0;
+	else
+	{
+		return std::max(getHeight(node->left) + getHeight(node->right), std::max(getMaxDist(node->left), getMaxDist(node->right)));
+	}
+}
+//是否是完全二叉树
+//广度优先搜索
+//当出现第一个只有左子树，或者没有子树的节点时，后面的节点必须是没有子树的
+bool isCompleteTree(BinNode* root)
+{
+	bool noChild = false;
+	if (root == nullptr) return true;
+	BinNode* node = root;
+	std::queue<BinNode*> qu;
+	qu.push(root);
+	while (!qu.empty())
+	{
+		node = qu.front();
+		qu.pop();
+		if (noChild == false)
+		{
+			if (node->left == nullptr && node->right != nullptr) 
+				return false;
+			else if (node->right == nullptr) 
+				noChild = true;
+		}
+		else if (noChild == true)
+		{
+			if (node->left != nullptr || node->right != nullptr) 
+				return false;
+		}
+		if (node->left != nullptr)
+			qu.push(node->left);
+		if (node->right != nullptr)
+			qu.push(node->right);
+	}
+	return true;
+}
 int main()
 {
 	BinNode* root = new BinNode(1);			BinNode* root1 = new BinNode(1);
@@ -310,5 +356,8 @@ int main()
 		<<"\n and root1->left->left->right > " << root1->left->left->right->val << " :\t" << \
 			getLastCommonParent(root1, root1->left->left->left, root1->left->left->right)->val << std::endl;
 	
+	std::cout << "get max distance in root1 between 2 nodes: " << getMaxDist(root1) << std::endl;
+	
+	std::cout << "is root1 a complete tree: " << isCompleteTree(root1) << std::endl;
 	return 1;
 }
