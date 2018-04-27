@@ -1,6 +1,8 @@
 #include <iostream>
 #include <queue>
-#define max(a,b) (a > b ? a : b)
+#include <algorithm>
+#include <cmath>
+//#define max(a,b) (a > b ? a : b)
 struct BinNode
 {
 	int val;
@@ -22,7 +24,7 @@ int getHeight(BinNode* node)
 	int lH = getHeight(node->left);
 	int rH = getHeight(node->right);
 
-	return max(lH,rH) + 1;
+	return std::max(lH,rH) + 1;
 } 
 
 //前序遍历
@@ -185,6 +187,68 @@ void printDbList(BinNode* first, BinNode* last)
 	}
 	std::cout << "\n";
 }
+
+//是否是平衡二叉树
+//就是后序遍历，从下到上求每一层高度时，判断一下
+bool isAVL(BinNode* root, int& height)
+{
+	if (root == nullptr)
+	{
+		height = 0;
+		return true;
+	}
+	int lH = 0, rH = 0;
+	bool lRes = isAVL(root->left, lH);
+	bool rRes = isAVL(root->right, rH);
+	if (lRes && rRes && abs(lH - rH) <= 1)
+	{
+		height = std::max(lH, rH) + 1;
+		return true;
+	}
+	else
+	{
+		height = std::max(lH, rH) + 1;
+		return false;
+	}
+}
+
+//将二叉树镜像
+//后序遍历，从叶子节点开始，将每一个节点的子树镜像
+void mirror(BinNode* root)
+{
+	if (root == nullptr) return;
+	mirror(root->left);
+	mirror(root->right);
+	BinNode* temp = root->left;
+	root->left = root->right;
+	root->right = temp;
+}
+
+//查找node是否在root的子树中
+//先序遍历，找到一个节点等于查找节点就返回
+bool findNode(BinNode* root, BinNode* node)
+{
+	if (root == nullptr || node == nullptr) return false;
+	if (node == root) return true;
+	return findNode(root->left, node) || findNode(root->right, node);
+}
+//查找两个节点最近的共同祖先
+//先序遍历，找到一个节点，使得两个查找节点刚好在两边，一定是最近祖先（因为从最近祖先才开始第一次分支）
+BinNode* getLastCommonParent(BinNode* root, BinNode* node1, BinNode* node2)
+{
+	if (root == nullptr) return nullptr;
+	if (root == node1 || root == node2) return root;//这句可以不要，因为如果有一个查找节点就是根节点，那么它算左右哪边都行。这句优化速度。
+	if (findNode(root->left, node1))
+	{
+		if (findNode(root->right, node2)) return root;
+		else return getLastCommonParent(root->left, node1, node2);
+	}
+	else
+	{
+		if (findNode(root->left, node2)) return root;
+		else return getLastCommonParent(root->right, node1, node2);
+	}
+}
 int main()
 {
 	BinNode* root = new BinNode(1);			BinNode* root1 = new BinNode(1);
@@ -193,7 +257,7 @@ int main()
 	root->left->left = new BinNode(4);		root1->left->left = new BinNode(4);
 	root->left->right = new BinNode(5);		root1->left->right = new BinNode(5);
 	root->right->left = new BinNode(6);		root1->right->left = new BinNode(6);
-	root->right->right = new BinNode(7);	//root1->right->right = new BinNode(7);
+	root->right->right = new BinNode(7);	root1->right->right = new BinNode(7);
 
 	std::cout << "get number of tree when tree have 1,2,3,4,5 node:	" << std::endl;
 	std::cout << getNodeNum(root) << std::endl;
@@ -222,12 +286,29 @@ int main()
 	//std::cout << "get leaf node num: " << std::endl;
 	std::cout << "get leaf node num: " << getLeafNodeNum(root) << std::endl;
 
-	std::cout << "is root ans root1 have same struct: " << isSameStruct(root, root1) << std::endl;
+	std::cout << "is root and root1 have same struct: " << isSameStruct(root, root1) << std::endl;
 
 	std::cout << "convert into double list, if thr tree is a search tree, the list will be sorted" << std::endl;
 	BinNode *first = nullptr, *last = nullptr;
 	convertDbList(root, first, last);
 	printDbList(first, last);
-
+	
+	int height(0);
+	std::cout << "is AVL: " << isAVL(root1, height) << "\n";
+	
+	std::cout << "convert root1 to its mirror: " << std::endl;
+	mirror(root1);
+	levelPrintln(root1);
+	
+	std::cout << "convert root1 to its mirror again, insert 2 nodes: " << std::endl;
+	mirror(root1);
+	root1->left->left->left = new BinNode(8);
+	root1->left->left->right = new BinNode(9);
+	levelPrintln(root1);
+	
+	std::cout << "find the last common parent of root1->left->left->left > "<< root1->left->left->left->val\
+		<<"\n and root1->left->left->right > " << root1->left->left->right->val << " :\t" << \
+			getLastCommonParent(root1, root1->left->left->left, root1->left->left->right)->val << std::endl;
+	
 	return 1;
 }
